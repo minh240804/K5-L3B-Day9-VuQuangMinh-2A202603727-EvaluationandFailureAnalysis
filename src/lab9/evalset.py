@@ -53,7 +53,10 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 
 def sha12(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+    # Git may check out text as CRLF on Windows and LF on Linux. Hash the same
+    # logical eval set on both platforms so a valid baseline stays comparable.
+    content = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()[:12]
 
 
 def build(source: Path = SOURCE) -> tuple[int, int]:
